@@ -1,13 +1,38 @@
 import React, { useState } from 'react';
 import IdCardUploader from './components/IdCardUploader';
+import { performOcr } from './services/ocr';
+
+interface OcrState {
+  text: string;
+  confidence: number;
+  isProcessing: boolean;
+  error?: string;
+}
 
 function App() {
-  const [result, setResult] = useState<string>('');
+  const [ocrState, setOcrState] = useState<OcrState>({
+    text: '',
+    confidence: 0,
+    isProcessing: false
+  });
 
-  const handleUpload = (file: File) => {
-    // TODO: 實作 OCR 處理邏輯
-    console.log('處理上傳的檔案:', file);
-    setResult('正在處理圖片...');
+  const handleUpload = async (file: File) => {
+    setOcrState(prev => ({ ...prev, isProcessing: true, error: undefined }));
+    
+    try {
+      const result = await performOcr(file);
+      setOcrState({
+        text: result.text,
+        confidence: result.confidence,
+        isProcessing: false
+      });
+    } catch {
+      setOcrState(prev => ({
+        ...prev,
+        isProcessing: false,
+        error: '處理圖片時發生錯誤，請重試'
+      }));
+    }
   };
 
   return (
@@ -21,7 +46,26 @@ function App() {
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-4">辨識結果</h2>
             <div className="p-4 bg-gray-50 rounded min-h-[100px]">
-              {result || '尚未有辨識結果'}
+              {ocrState.isProcessing ? (
+                <div className="text-center text-gray-600">
+                  正在處理圖片...
+                </div>
+              ) : ocrState.error ? (
+                <div className="text-center text-red-500">
+                  {ocrState.error}
+                </div>
+              ) : ocrState.text ? (
+                <div>
+                  <div className="whitespace-pre-wrap">{ocrState.text}</div>
+                  <div className="mt-2 text-sm text-gray-500">
+                    辨識信心度：{(ocrState.confidence * 100).toFixed(2)}%
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-gray-600">
+                  尚未有辨識結果
+                </div>
+              )}
             </div>
           </div>
         </div>
