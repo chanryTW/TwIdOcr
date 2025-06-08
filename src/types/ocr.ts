@@ -1,19 +1,16 @@
 export type CardType = 'id' | 'health' | 'driver';
 
-export type IdCardField = 'name' | 'id' | 'birth' | 'issueDate';
-export type HealthCardField = 'name' | 'id' | 'birth' | 'validDate';
-export type DriverLicenseField = 'name' | 'id' | 'birth' | 'licenseNumber' | 'validDate';
-
-export type CardField = IdCardField | HealthCardField | DriverLicenseField;
-
 export interface Region {
-  id: string;
-  field: CardField;
+  field: string;
   x: number;
   y: number;
   width: number;
   height: number;
 }
+
+export type CardRegions = Record<string, Region>;
+
+export type CardRegionsMap = Record<CardType, CardRegions>;
 
 export interface OcrResult {
   text: string;
@@ -21,5 +18,5 @@ export interface OcrResult {
 }
 
 export type FieldOcrResult = {
-  [key in CardField]?: OcrResult;
+  [key: string]: OcrResult;
 }; 

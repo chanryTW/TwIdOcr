@@ -6,7 +6,7 @@ export async function performOcr(
   regions?: Region[]
 ): Promise<FieldOcrResult> {
   const worker = await createWorker('chi_tra+eng');
-  
+
   try {
     // 設定基本參數
     await worker.setParameters({
@@ -73,6 +73,19 @@ export async function performOcr(
           tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
           tessedit_pageseg_mode: PSM.SINGLE_LINE,
         });
+      } else if (region.field === 'name') {
+        await worker.setParameters({
+          tessedit_pageseg_mode: PSM.SINGLE_LINE,
+          tessedit_char_whitelist: '',
+          preserve_interword_spaces: '0',
+          language_model_penalty_non_dict_word: '0',
+          language_model_penalty_non_freq_dict_word: '0'
+        });
+      } else if (region.field === 'cardNumber') {
+        await worker.setParameters({
+          tessedit_char_whitelist: '0123456789',
+          tessedit_pageseg_mode: PSM.SINGLE_LINE,
+        });
       } else {
         await worker.setParameters({
           tessedit_char_whitelist: '',
@@ -83,7 +96,7 @@ export async function performOcr(
       // 辨識區域
       const { data: { text, confidence } } = await worker.recognize(blob);
       results[region.field] = { 
-        text: region.field === 'id' ? text.replace(/\s+/g, '') : text, 
+        text: region.field === 'id' ? text.replace(/\s+/g, '') : text.trim(), 
         confidence 
       };
     }

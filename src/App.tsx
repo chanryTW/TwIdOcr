@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import IdCardUploader from './components/IdCardUploader';
-import { performOcr } from './services/ocr';
 import { Region, FieldOcrResult, CardType } from './types/ocr';
 import { FIELD_LABELS, CARD_LABELS } from './constants/cardRegions';
+import { performOcr } from './services/ocr';
 
 interface OcrState {
   results: FieldOcrResult | null;

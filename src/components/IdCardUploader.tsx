@@ -2,6 +2,7 @@ import React, { ChangeEvent, useState, DragEvent } from 'react';
 import { Region, CardType } from '../types/ocr';
 import { CARD_LABELS, CARD_REGIONS, REFERENCE_SIZES } from '../constants/cardRegions';
 import RegionSelector from './RegionSelector';
+import ImageCropper from './ImageCropper';
 
 interface Props {
   onUpload: (file: File, regions: Region[], cardType: CardType) => void;
@@ -12,12 +13,15 @@ const IdCardUploader: React.FC<Props> = ({ onUpload }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [regions, setRegions] = useState<Region[]>([]);
   const [selectedType, setSelectedType] = useState<CardType>('id');
+  const [showCropper, setShowCropper] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleFile = (file: File) => {
-    // 建立圖片預覽
+    setSelectedFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview(reader.result as string);
+      setShowCropper(true);
     };
     reader.readAsDataURL(file);
   };
@@ -67,6 +71,29 @@ const IdCardUploader: React.FC<Props> = ({ onUpload }) => {
     setSelectedType(e.target.value as CardType);
     setPreview(null);
     setRegions([]);
+    setShowCropper(false);
+    setSelectedFile(null);
+  };
+
+  const handleCropComplete = (croppedImage: string) => {
+    setShowCropper(false);
+    setPreview(croppedImage);
+    
+    // Convert base64 to File object
+    fetch(croppedImage)
+      .then(res => res.blob())
+      .then(blob => {
+        if (selectedFile) {
+          const file = new File([blob], selectedFile.name, { type: 'image/jpeg' });
+          setSelectedFile(file);
+        }
+      });
+  };
+
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setPreview(null);
+    setSelectedFile(null);
   };
 
   // 將 Data URL 轉換為 File 物件
@@ -102,7 +129,7 @@ const IdCardUploader: React.FC<Props> = ({ onUpload }) => {
           ))}
         </select>
       </div>
-
+      
       <div
         className={`flex flex-col gap-4 p-8 border-2 border-dashed rounded-lg transition-colors ${
           isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
@@ -130,6 +157,12 @@ const IdCardUploader: React.FC<Props> = ({ onUpload }) => {
               選擇圖片
             </label>
           </div>
+        ) : showCropper ? (
+          <ImageCropper
+            imageUrl={preview}
+            onCropComplete={handleCropComplete}
+            onCancel={handleCropCancel}
+          />
         ) : (
           <>
             <div className="relative">
@@ -142,6 +175,7 @@ const IdCardUploader: React.FC<Props> = ({ onUpload }) => {
                 onClick={() => {
                   setPreview(null);
                   setRegions([]);
+                  setSelectedFile(null);
                 }}
                 className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
               >
