@@ -1,4 +1,4 @@
-export type CardType = 'id' | 'health' | 'driver';
+export type CardType = 'id' | 'health';
 
 export interface Region {
   field: string;

@@ -9,10 +9,6 @@ export const REFERENCE_SIZES: Record<CardType, { width: number; height: number }
   health: {
     width: 860,    // 健保卡的標準寬度
     height: 540    // 健保卡的標準高度
-  },
-  driver: {
-    width: 1000,
-    height: 650
   }
 };
 
@@ -51,68 +47,31 @@ export const CARD_REGIONS: CardRegionsMap = {
   health: {
     name: {
       field: 'name',
-      x: 270,      // 姓名位置
-      y: 200,      
-      width: 310,  
-      height: 120   
+      x: 220,      // 姓名位置
+      y: 180,      
+      width: 200,  
+      height: 40   
     },
     id: {
       field: 'id',
-      x: 270,      // 身分證字號位置
-      y: 320,      
-      width: 310,  
-      height: 60   
+      x: 220,      // 身分證字號位置
+      y: 230,      
+      width: 200,  
+      height: 40   
     },
     birth: {
       field: 'birth',
-      x: 270,      // 出生年月日位置
-      y: 380,      
-      width: 310,  
-      height: 50   
+      x: 220,      // 出生年月日位置
+      y: 280,      
+      width: 200,  
+      height: 40   
     },
     cardNumber: {
       field: 'cardNumber',
-      x: 30,      // 卡號位置
-      y: 450,      
-      width: 250,  
-      height: 70   
-    }
-  },
-  driver: {
-    name: {
-      field: 'name',
-      x: 160,
-      y: 200,
-      width: 300,
-      height: 45
-    },
-    id: {
-      field: 'id',
-      x: 160,
-      y: 250,
-      width: 300,
-      height: 45
-    },
-    birth: {
-      field: 'birth',
-      x: 160,
-      y: 300,
-      width: 250,
-      height: 45
-    },
-    licenseNumber: {
-      field: 'licenseNumber',
-      x: 160,
-      y: 350,
-      width: 300,
-      height: 45
-    },
-    validDate: {
-      field: 'validDate',
-      x: 160,
-      y: 400,
-      width: 250,
-      height: 45
+      x: 220,      // 卡號位置
+      y: 330,      
+      width: 200,  
+      height: 40   
     }
   }
 };
@@ -120,8 +79,7 @@ export const CARD_REGIONS: CardRegionsMap = {
 // 卡片類型標籤
 export const CARD_LABELS: Record<CardType, string> = {
   id: '身分證',
-  health: '健保卡',
-  driver: '駕照'
+  health: '健保卡'
 };
 
 // 欄位標籤
@@ -130,7 +88,5 @@ export const FIELD_LABELS: Record<string, string> = {
   id: '身分證字號',
   birth: '出生年月日',
   issueDate: '發證日期',
-  validDate: '有效期限',
-  licenseNumber: '駕照號碼',
   cardNumber: '卡號'
 }; 
