@@ -1,29 +1,34 @@
 import React, { useState } from 'react';
 import IdCardUploader from './components/IdCardUploader';
 import { performOcr } from './services/ocr';
+import { Region, FieldOcrResult } from './types/ocr';
 
 interface OcrState {
-  text: string;
-  confidence: number;
+  results: FieldOcrResult | null;
   isProcessing: boolean;
   error?: string;
 }
 
+const FIELD_LABELS: Record<string, string> = {
+  name: '姓名',
+  id: '身分證字號',
+  birth: '出生年月日',
+  issueDate: '發證日期'
+};
+
 function App() {
   const [ocrState, setOcrState] = useState<OcrState>({
-    text: '',
-    confidence: 0,
+    results: null,
     isProcessing: false
   });
 
-  const handleUpload = async (file: File) => {
+  const handleUpload = async (file: File, regions: Region[]) => {
     setOcrState(prev => ({ ...prev, isProcessing: true, error: undefined }));
     
     try {
-      const result = await performOcr(file);
+      const results = await performOcr(file, regions);
       setOcrState({
-        text: result.text,
-        confidence: result.confidence,
+        results,
         isProcessing: false
       });
     } catch {
@@ -54,12 +59,21 @@ function App() {
                 <div className="text-center text-red-500">
                   {ocrState.error}
                 </div>
-              ) : ocrState.text ? (
-                <div>
-                  <div className="whitespace-pre-wrap">{ocrState.text}</div>
-                  <div className="mt-2 text-sm text-gray-500">
-                    辨識信心度：{(ocrState.confidence * 100).toFixed(2)}%
-                  </div>
+              ) : ocrState.results ? (
+                <div className="space-y-4">
+                  {Object.entries(ocrState.results).map(([field, result]) => (
+                    <div key={field} className="flex items-start">
+                      <div className="w-24 flex-shrink-0 font-semibold">
+                        {FIELD_LABELS[field]}：
+                      </div>
+                      <div className="flex-1">
+                        <div className="whitespace-pre-wrap">{result.text}</div>
+                        <div className="mt-1 text-sm text-gray-500">
+                          辨識信心度：{(result.confidence * 100).toFixed(2)}%
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="text-center text-gray-600">
