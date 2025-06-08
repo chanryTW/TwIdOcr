@@ -47,33 +47,33 @@ export const CARD_REGIONS: CardRegionsMap = {
   health: {
     name: {
       field: 'name',
-      x: 220,      // 姓名位置
-      y: 180,      
-      width: 200,  
-      height: 40   
+      x: 270,      // 姓名位置
+      y: 200,      
+      width: 310,  
+      height: 120   
     },
     id: {
       field: 'id',
-      x: 220,      // 身分證字號位置
-      y: 230,      
-      width: 200,  
-      height: 40   
+      x: 270,      // 身分證字號位置
+      y: 320,      
+      width: 310,  
+      height: 60   
     },
     birth: {
       field: 'birth',
-      x: 220,      // 出生年月日位置
-      y: 280,      
-      width: 200,  
-      height: 40   
+      x: 270,      // 出生年月日位置
+      y: 380,      
+      width: 310,  
+      height: 50   
     },
     cardNumber: {
       field: 'cardNumber',
-      x: 220,      // 卡號位置
-      y: 330,      
-      width: 200,  
-      height: 40   
+      x: 30,      // 卡號位置
+      y: 450,      
+      width: 250,  
+      height: 70   
     }
-  }
+  },
 };
 
 // 卡片類型標籤
