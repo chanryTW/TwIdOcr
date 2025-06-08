@@ -1,21 +1,14 @@
 import React, { useRef, useEffect } from 'react';
-import { Region } from '../types/ocr';
-import { DEFAULT_REGIONS, ID_CARD_REFERENCE } from '../constants/idCardRegions';
+import { Region, CardType } from '../types/ocr';
+import { CARD_REGIONS, FIELD_LABELS, REFERENCE_SIZES } from '../constants/cardRegions';
 
 interface Props {
   imageUrl: string;
+  cardType: CardType;
   onImageLoad?: (regions: Region[]) => void;
 }
 
-const FIELD_LABELS: Record<string, string> = {
-  name: '姓名',
-  id: '身分證字號',
-  birth: '出生年月日',
-  address: '住址',
-  issueDate: '發證日期'
-};
-
-const RegionSelector: React.FC<Props> = ({ imageUrl, onImageLoad }) => {
+const RegionSelector: React.FC<Props> = ({ imageUrl, cardType, onImageLoad }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -30,11 +23,11 @@ const RegionSelector: React.FC<Props> = ({ imageUrl, onImageLoad }) => {
       canvas.height = image.height;
 
       // 計算縮放比例
-      const scaleX = image.width / ID_CARD_REFERENCE.width;
-      const scaleY = image.height / ID_CARD_REFERENCE.height;
+      const scaleX = image.width / REFERENCE_SIZES[cardType].width;
+      const scaleY = image.height / REFERENCE_SIZES[cardType].height;
 
       // 產生實際區域
-      const scaledRegions: Region[] = DEFAULT_REGIONS.map(region => ({
+      const scaledRegions: Region[] = CARD_REGIONS[cardType].map(region => ({
         ...region,
         id: Date.now().toString() + Math.random(),
         x: region.x * scaleX,
@@ -48,7 +41,7 @@ const RegionSelector: React.FC<Props> = ({ imageUrl, onImageLoad }) => {
 
       drawCanvas(image, scaledRegions);
     };
-  }, [imageUrl, onImageLoad]);
+  }, [imageUrl, cardType, onImageLoad]);
 
   const drawCanvas = (image: HTMLImageElement, regions: Region[]) => {
     const canvas = canvasRef.current;

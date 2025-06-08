@@ -1,15 +1,17 @@
 import React, { ChangeEvent, useState, DragEvent } from 'react';
-import { Region } from '../types/ocr';
+import { Region, CardType } from '../types/ocr';
+import { CARD_LABELS, CARD_REGIONS, REFERENCE_SIZES } from '../constants/cardRegions';
 import RegionSelector from './RegionSelector';
 
 interface Props {
-  onUpload: (file: File, regions: Region[]) => void;
+  onUpload: (file: File, regions: Region[], cardType: CardType) => void;
 }
 
 const IdCardUploader: React.FC<Props> = ({ onUpload }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [regions, setRegions] = useState<Region[]>([]);
+  const [selectedType, setSelectedType] = useState<CardType>('id');
 
   const handleFile = (file: File) => {
     // 建立圖片預覽
@@ -57,8 +59,14 @@ const IdCardUploader: React.FC<Props> = ({ onUpload }) => {
   const handleStartOcr = () => {
     const file = preview && dataUrlToFile(preview);
     if (file) {
-      onUpload(file, regions);
+      onUpload(file, regions, selectedType);
     }
+  };
+
+  const handleTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedType(e.target.value as CardType);
+    setPreview(null);
+    setRegions([]);
   };
 
   // 將 Data URL 轉換為 File 物件
@@ -80,7 +88,21 @@ const IdCardUploader: React.FC<Props> = ({ onUpload }) => {
 
   return (
     <div className="mb-6">
-      <h2 className="text-xl font-semibold mb-4">上傳身分證圖片</h2>
+      <div className="flex items-center gap-4 mb-4">
+        <h2 className="text-xl font-semibold">上傳證件圖片</h2>
+        <select
+          value={selectedType}
+          onChange={handleTypeChange}
+          className="px-4 py-2 border rounded-lg bg-white"
+        >
+          {Object.entries(CARD_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div
         className={`flex flex-col gap-4 p-8 border-2 border-dashed rounded-lg transition-colors ${
           isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
@@ -92,7 +114,7 @@ const IdCardUploader: React.FC<Props> = ({ onUpload }) => {
         {!preview ? (
           <div className="text-center">
             <p className="text-gray-600 mb-4">
-              將圖片拖曳至此處，或點擊下方按鈕選擇圖片
+              將{CARD_LABELS[selectedType]}圖片拖曳至此處，或點擊下方按鈕選擇圖片
             </p>
             <input
               type="file"
@@ -114,6 +136,7 @@ const IdCardUploader: React.FC<Props> = ({ onUpload }) => {
               <RegionSelector
                 imageUrl={preview}
                 onImageLoad={handleImageLoad}
+                cardType={selectedType}
               />
               <button
                 onClick={() => {

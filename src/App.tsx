@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import IdCardUploader from './components/IdCardUploader';
 import { performOcr } from './services/ocr';
-import { Region, FieldOcrResult } from './types/ocr';
+import { Region, FieldOcrResult, CardType } from './types/ocr';
+import { FIELD_LABELS, CARD_LABELS } from './constants/cardRegions';
 
 interface OcrState {
   results: FieldOcrResult | null;
   isProcessing: boolean;
   error?: string;
+  cardType?: CardType;
 }
-
-const FIELD_LABELS: Record<string, string> = {
-  name: '姓名',
-  id: '身分證字號',
-  birth: '出生年月日',
-  issueDate: '發證日期'
-};
 
 function App() {
   const [ocrState, setOcrState] = useState<OcrState>({
@@ -22,14 +17,20 @@ function App() {
     isProcessing: false
   });
 
-  const handleUpload = async (file: File, regions: Region[]) => {
-    setOcrState(prev => ({ ...prev, isProcessing: true, error: undefined }));
+  const handleUpload = async (file: File, regions: Region[], cardType: CardType) => {
+    setOcrState(prev => ({ 
+      ...prev, 
+      isProcessing: true, 
+      error: undefined,
+      cardType 
+    }));
     
     try {
       const results = await performOcr(file, regions);
       setOcrState({
         results,
-        isProcessing: false
+        isProcessing: false,
+        cardType
       });
     } catch {
       setOcrState(prev => ({
@@ -43,13 +44,20 @@ function App() {
   return (
     <div className="w-screen min-h-screen bg-gray-100 p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">台灣身分證 OCR Demo</h1>
+        <h1 className="text-3xl font-bold mb-8">證件 OCR Demo</h1>
         
         <div className="bg-white rounded-lg shadow-lg p-6">
           <IdCardUploader onUpload={handleUpload} />
 
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">辨識結果</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              辨識結果
+              {ocrState.cardType && (
+                <span className="ml-2 text-gray-500">
+                  ({CARD_LABELS[ocrState.cardType]})
+                </span>
+              )}
+            </h2>
             <div className="p-4 bg-gray-50 rounded min-h-[100px]">
               {ocrState.isProcessing ? (
                 <div className="text-center text-gray-600">
